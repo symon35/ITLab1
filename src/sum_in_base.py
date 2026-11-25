@@ -1,14 +1,57 @@
 def add_in_base(a: str, b: str, base: int) -> str:
-    """
-    Складывает два числа, записанных в системе счисления с основанием base.
+    if not (2 <= base <= 36):
+        raise ValueError("Основание системы счисления должно быть от 2 до 36")
 
-    :param a: первое число, строка (например, "1011")
-    :param b: второе число, строка (например, "111")
-    :param base: основание системы счисления, 2 <= base <= 36
-    :return: сумма в той же системе счисления, строка
+    def char_to_int(c):
+        if '0' <= c <= '9':
+            return ord(c) - ord('0')
+        elif 'A' <= c <= 'Z':
+            return ord(c) - ord('A') + 10
+        elif 'a' <= c <= 'z':
+            return ord(c) - ord('a') + 10
+        else:
+            raise ValueError(f"Недопустимый символ: {c}")
 
-    Пример:
-        add_in_base("1011", "111", 2) -> "10010"
-        add_in_base("FF", "1", 16) -> "100"
-    """
-    raise NotImplementedError("Реализуйте функцию add_in_base")
+    def int_to_char(n):
+        if 0 <= n <= 9:
+            return chr(ord('0') + n)
+        else:
+            return chr(ord('A') + n - 10)
+
+    # Проверка символов и преобразование в список цифр
+    digits_a = []
+    for char in a:
+        val = char_to_int(char)
+        if val >= base:
+            raise ValueError(f"Цифра {char} недопустима для основания {base}")
+        digits_a.append(val)
+
+    digits_b = []
+    for char in b:
+        val = char_to_int(char)
+        if val >= base:
+            raise ValueError(f"Цифра {char} недопустима для основания {base}")
+        digits_b.append(val)
+
+    # Выравнивание длины
+    max_len = max(len(digits_a), len(digits_b))
+    digits_a = [0] * (max_len - len(digits_a)) + digits_a
+    digits_b = [0] * (max_len - len(digits_b)) + digits_b
+
+    # Сложение столбиком
+    result = []
+    carry = 0
+    for i in range(max_len - 1, -1, -1):
+        total = digits_a[i] + digits_b[i] + carry
+        result.append(total % base)
+        carry = total // base
+
+    if carry > 0:
+        result.append(carry)
+
+    # Формирование строки результата
+    result_str = ''.join(int_to_char(d) for d in reversed(result))
+    
+    # Удаление ведущих нулей
+    result_str = result_str.lstrip('0')
+    return result_str if result_str != '' else '0'
